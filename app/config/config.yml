@@ -69,3 +69,7 @@ swiftmailer:
 sensio_framework_extra:
    router:
         annotations: false
+
+naoned_oai_pmh_server:
+    data_provider_service_name: naoned.oaipmh.data_provider
+    count_per_load: 50

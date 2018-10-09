@@ -7,7 +7,7 @@ use Naoned\OaiPmhServerBundle\DataProvider\ArrayObject;
 use Naoned\OaiPmhServerBundle\DataProvider\DataProviderInterface;
 use Symfony\Component\DependencyInjection\ContainerAwareTrait;
 
-class OAIController implements DataProviderInterface
+class OAI implements DataProviderInterface
 {
     use ContainerAwareTrait;
 
