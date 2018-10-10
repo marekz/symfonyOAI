@@ -2,15 +2,11 @@
 
 namespace AppBundle\Classes;
 
-use Naoned\OaiPmhServerBundle\DataProvider\any;
-use Naoned\OaiPmhServerBundle\DataProvider\ArrayObject;
 use Naoned\OaiPmhServerBundle\DataProvider\DataProviderInterface;
-use Symfony\Component\DependencyInjection\ContainerAwareTrait;
+use Symfony\Component\DependencyInjection\ContainerAware;
 
-class OAI implements DataProviderInterface
+class OAI extends ContainerAware implements DataProviderInterface
 {
-    use ContainerAwareTrait;
-
     /**
      * @return string Repository name
      */

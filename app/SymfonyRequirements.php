@@ -168,9 +168,6 @@ class PhpIniRequirement extends Requirement
  */
 class RequirementCollection implements IteratorAggregate
 {
-    /**
-     * @var Requirement[]
-     */
     private $requirements = array();
 
     /**
@@ -268,7 +265,7 @@ class RequirementCollection implements IteratorAggregate
     /**
      * Returns both requirements and recommendations.
      *
-     * @return Requirement[]
+     * @return array Array of Requirement instances
      */
     public function all()
     {
@@ -278,7 +275,7 @@ class RequirementCollection implements IteratorAggregate
     /**
      * Returns all mandatory requirements.
      *
-     * @return Requirement[]
+     * @return array Array of Requirement instances
      */
     public function getRequirements()
     {
@@ -295,7 +292,7 @@ class RequirementCollection implements IteratorAggregate
     /**
      * Returns the mandatory requirements that were not met.
      *
-     * @return Requirement[]
+     * @return array Array of Requirement instances
      */
     public function getFailedRequirements()
     {
@@ -312,7 +309,7 @@ class RequirementCollection implements IteratorAggregate
     /**
      * Returns all optional recommendations.
      *
-     * @return Requirement[]
+     * @return array Array of Requirement instances
      */
     public function getRecommendations()
     {
@@ -329,7 +326,7 @@ class RequirementCollection implements IteratorAggregate
     /**
      * Returns the recommendations that were not met.
      *
-     * @return Requirement[]
+     * @return array Array of Requirement instances
      */
     public function getFailedRecommendations()
     {
@@ -379,8 +376,7 @@ class RequirementCollection implements IteratorAggregate
  */
 class SymfonyRequirements extends RequirementCollection
 {
-    const LEGACY_REQUIRED_PHP_VERSION = '5.3.3';
-    const REQUIRED_PHP_VERSION = '5.5.9';
+    const REQUIRED_PHP_VERSION = '5.3.3';
 
     /**
      * Constructor that initializes the requirements.
@@ -389,26 +385,16 @@ class SymfonyRequirements extends RequirementCollection
     {
         /* mandatory requirements follow */
 
-        $installedPhpVersion = PHP_VERSION;
-        $requiredPhpVersion = $this->getPhpRequiredVersion();
+        $installedPhpVersion = phpversion();
 
-        $this->addRecommendation(
-            $requiredPhpVersion,
-            'Vendors should be installed in order to check all requirements.',
-            'Run the <code>composer install</code> command.',
-            'Run the "composer install" command.'
-        );
-
-        if (false !== $requiredPhpVersion) {
-            $this->addRequirement(
-                version_compare($installedPhpVersion, $requiredPhpVersion, '>='),
-                sprintf('PHP version must be at least %s (%s installed)', $requiredPhpVersion, $installedPhpVersion),
-                sprintf('You are running PHP version "<strong>%s</strong>", but Symfony needs at least PHP "<strong>%s</strong>" to run.
+        $this->addRequirement(
+            version_compare($installedPhpVersion, self::REQUIRED_PHP_VERSION, '>='),
+            sprintf('PHP version must be at least %s (%s installed)', self::REQUIRED_PHP_VERSION, $installedPhpVersion),
+            sprintf('You are running PHP version "<strong>%s</strong>", but Symfony needs at least PHP "<strong>%s</strong>" to run.
                 Before using Symfony, upgrade your PHP installation, preferably to the latest version.',
-                    $installedPhpVersion, $requiredPhpVersion),
-                sprintf('Install PHP %s or newer (installed version is %s)', $requiredPhpVersion, $installedPhpVersion)
-            );
-        }
+                $installedPhpVersion, self::REQUIRED_PHP_VERSION),
+            sprintf('Install PHP %s or newer (installed version is %s)', self::REQUIRED_PHP_VERSION, $installedPhpVersion)
+        );
 
         $this->addRequirement(
             version_compare($installedPhpVersion, '5.3.16', '!='),
@@ -439,27 +425,26 @@ class SymfonyRequirements extends RequirementCollection
             'Change the permissions of either "<strong>app/logs/</strong>" or  "<strong>var/logs/</strong>" directory so that the web server can write into it.'
         );
 
-        if (version_compare($installedPhpVersion, '7.0.0', '<')) {
-            $this->addPhpIniRequirement(
-                'date.timezone', true, false,
-                'date.timezone setting must be set',
-                'Set the "<strong>date.timezone</strong>" setting in php.ini<a href="#phpini">*</a> (like Europe/Paris).'
-            );
-        }
+        $this->addPhpIniRequirement(
+            'date.timezone', true, false,
+            'date.timezone setting must be set',
+            'Set the "<strong>date.timezone</strong>" setting in php.ini<a href="#phpini">*</a> (like Europe/Paris).'
+        );
 
-        if (false !== $requiredPhpVersion && version_compare($installedPhpVersion, $requiredPhpVersion, '>=')) {
+        if (version_compare($installedPhpVersion, self::REQUIRED_PHP_VERSION, '>=')) {
+            $timezones = array();
+            foreach (DateTimeZone::listAbbreviations() as $abbreviations) {
+                foreach ($abbreviations as $abbreviation) {
+                    $timezones[$abbreviation['timezone_id']] = true;
+                }
+            }
+
             $this->addRequirement(
-                in_array(@date_default_timezone_get(), DateTimeZone::listIdentifiers(), true),
+                isset($timezones[@date_default_timezone_get()]),
                 sprintf('Configured default timezone "%s" must be supported by your installation of PHP', @date_default_timezone_get()),
                 'Your default timezone is not supported by PHP. Check for typos in your <strong>php.ini</strong> file and have a look at the list of deprecated timezones at <a href="http://php.net/manual/en/timezones.others.php">http://php.net/manual/en/timezones.others.php</a>.'
             );
         }
-
-        $this->addRequirement(
-            function_exists('iconv'),
-            'iconv() must be available',
-            'Install and enable the <strong>iconv</strong> extension.'
-        );
 
         $this->addRequirement(
             function_exists('json_encode'),
@@ -561,10 +546,10 @@ class SymfonyRequirements extends RequirementCollection
             require_once __DIR__.'/../vendor/autoload.php';
 
             try {
-                $r = new ReflectionClass('Sensio\Bundle\DistributionBundle\SensioDistributionBundle');
+                $r = new \ReflectionClass('Sensio\Bundle\DistributionBundle\SensioDistributionBundle');
 
                 $contents = file_get_contents(dirname($r->getFileName()).'/Resources/skeleton/app/SymfonyRequirements.php');
-            } catch (ReflectionException $e) {
+            } catch (\ReflectionException $e) {
                 $contents = '';
             }
             $this->addRecommendation(
@@ -627,6 +612,12 @@ class SymfonyRequirements extends RequirementCollection
         );
 
         $this->addRecommendation(
+            function_exists('iconv'),
+            'iconv() should be available',
+            'Install and enable the <strong>iconv</strong> extension.'
+        );
+
+        $this->addRecommendation(
             function_exists('utf8_decode'),
             'utf8_decode() should be available',
             'Install and enable the <strong>XML</strong> extension.'
@@ -647,20 +638,20 @@ class SymfonyRequirements extends RequirementCollection
         }
 
         $this->addRecommendation(
-            extension_loaded('intl'),
+            class_exists('Locale'),
             'intl extension should be available',
             'Install and enable the <strong>intl</strong> extension (used for validators).'
         );
 
-        if (extension_loaded('intl')) {
-            // in some WAMP server installations, new Collator() returns null
+        if (class_exists('Collator')) {
             $this->addRecommendation(
                 null !== new Collator('fr_FR'),
                 'intl extension should be correctly configured',
                 'The intl extension does not behave properly. This problem is typical on PHP 5.3.X x64 WIN builds.'
             );
+        }
 
-            // check for compatible ICU versions (only done when you have the intl extension)
+        if (class_exists('Locale')) {
             if (defined('INTL_ICU_VERSION')) {
                 $version = INTL_ICU_VERSION;
             } else {
@@ -678,29 +669,6 @@ class SymfonyRequirements extends RequirementCollection
                 version_compare($version, '4.0', '>='),
                 'intl ICU version should be at least 4+',
                 'Upgrade your <strong>intl</strong> extension with a newer ICU version (4+).'
-            );
-
-            if (class_exists('Symfony\Component\Intl\Intl')) {
-                $this->addRecommendation(
-                    \Symfony\Component\Intl\Intl::getIcuDataVersion() <= \Symfony\Component\Intl\Intl::getIcuVersion(),
-                    sprintf('intl ICU version installed on your system is outdated (%s) and does not match the ICU data bundled with Symfony (%s)', \Symfony\Component\Intl\Intl::getIcuVersion(), \Symfony\Component\Intl\Intl::getIcuDataVersion()),
-                    'To get the latest internationalization data upgrade the ICU system package and the intl PHP extension.'
-                );
-                if (\Symfony\Component\Intl\Intl::getIcuDataVersion() <= \Symfony\Component\Intl\Intl::getIcuVersion()) {
-                    $this->addRecommendation(
-                        \Symfony\Component\Intl\Intl::getIcuDataVersion() === \Symfony\Component\Intl\Intl::getIcuVersion(),
-                        sprintf('intl ICU version installed on your system (%s) does not match the ICU data bundled with Symfony (%s)', \Symfony\Component\Intl\Intl::getIcuVersion(), \Symfony\Component\Intl\Intl::getIcuDataVersion()),
-                        'To avoid internationalization data inconsistencies upgrade the symfony/intl component.'
-                    );
-                }
-            }
-
-            $this->addPhpIniRecommendation(
-                'intl.error_level',
-                create_function('$cfgValue', 'return (int) $cfgValue === 0;'),
-                true,
-                'intl.error_level should be 0 in php.ini',
-                'Set "<strong>intl.error_level</strong>" to "<strong>0</strong>" in php.ini<a href="#phpini">*</a> to inhibit the messages when an error occurs in ICU functions.'
             );
         }
 
@@ -724,11 +692,11 @@ class SymfonyRequirements extends RequirementCollection
             'Install and/or enable a <strong>PHP accelerator</strong> (highly recommended).'
         );
 
-        if ('WIN' === strtoupper(substr(PHP_OS, 0, 3))) {
+        if (strtoupper(substr(PHP_OS, 0, 3)) === 'WIN') {
             $this->addRecommendation(
-                $this->getRealpathCacheSize() >= 5 * 1024 * 1024,
-                'realpath_cache_size should be at least 5M in php.ini',
-                'Setting "<strong>realpath_cache_size</strong>" to e.g. "<strong>5242880</strong>" or "<strong>5M</strong>" in php.ini<a href="#phpini">*</a> may improve performance on Windows significantly in some cases.'
+                $this->getRealpathCacheSize() > 1000,
+                'realpath_cache_size should be above 1024 in php.ini',
+                'Set "<strong>realpath_cache_size</strong>" to e.g. "<strong>1024</strong>" in php.ini<a href="#phpini">*</a> to improve performance on windows.'
             );
         }
 
@@ -767,11 +735,7 @@ class SymfonyRequirements extends RequirementCollection
     {
         $size = ini_get('realpath_cache_size');
         $size = trim($size);
-        $unit = '';
-        if (!ctype_digit($size)) {
-            $unit = strtolower(substr($size, -1, 1));
-            $size = (int) substr($size, 0, -1);
-        }
+        $unit = strtolower(substr($size, -1, 1));
         switch ($unit) {
             case 'g':
                 return $size * 1024 * 1024 * 1024;
@@ -782,29 +746,5 @@ class SymfonyRequirements extends RequirementCollection
             default:
                 return (int) $size;
         }
-    }
-
-    /**
-     * Defines PHP required version from Symfony version.
-     *
-     * @return string|false The PHP required version or false if it could not be guessed
-     */
-    protected function getPhpRequiredVersion()
-    {
-        if (!file_exists($path = __DIR__.'/../composer.lock')) {
-            return false;
-        }
-
-        $composerLock = json_decode(file_get_contents($path), true);
-        foreach ($composerLock['packages'] as $package) {
-            $name = $package['name'];
-            if ('symfony/symfony' !== $name && 'symfony/http-kernel' !== $name) {
-                continue;
-            }
-
-            return (int) $package['version'][1] > 2 ? self::REQUIRED_PHP_VERSION : self::LEGACY_REQUIRED_PHP_VERSION;
-        }
-
-        return false;
     }
 }

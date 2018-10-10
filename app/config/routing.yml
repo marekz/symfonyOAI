@@ -1,6 +1,7 @@
 app:
-    resource: '@AppBundle/Controller/'
-    type: annotation
+    resource: "@AppBundle/Controller/"
+    type:     annotation
+
 
 naoned_oai_pmh_server:
     resource: "@NaonedOaiPmhServerBundle/Resources/config/routing.yml"
