@@ -3,7 +3,6 @@
 namespace AppBundle\Classes;
 
 use Naoned\OaiPmhServerBundle\DataProvider\DataProviderInterface;
-use Symfony\Component\DependencyInjection\Container;
 use Symfony\Component\DependencyInjection\ContainerAware;
 
 class OAI extends ContainerAware implements DataProviderInterface
@@ -51,13 +50,8 @@ class OAI extends ContainerAware implements DataProviderInterface
         $doctrine = $container->get('doctrine');
         $em = $doctrine->getManager();
         $record = $em->getRepository('AppBundle:Publications')->findOneBy(array('id'=>$id));
-        return $this->convertToArray($record);
 
-//        return array(
-//            'title'         => 'Dummy content',
-//            'description'   => 'Some more dummy content',
-//            'sets'          => array('seta','setb'),
-//        );
+        return $this->convertToArray($record);
     }
 
     private function convertToArray($record){
@@ -70,6 +64,7 @@ class OAI extends ContainerAware implements DataProviderInterface
             'nr' => $record->getNr(),
             'source' => $record->getFilePAth()
         );
+
         return $recordArray;
     }
 
@@ -97,48 +92,9 @@ class OAI extends ContainerAware implements DataProviderInterface
                 'last_change' => $record->getCreatedAt(),
                 'source'      => $record->getFilepath(),
                 'sets'        => array('seta', 'setb'),);
-//            var_dump($record->getNr());
-//            var_dump($record->getFilePath());
             $listIdentifiers[] = $identifier;
         }
         return $listIdentifiers;
-//        return array(
-//            array(
-//                'identifier'  => '1W1',
-//                'title'       => 'Dummy content 1',
-//                'description' => 'Some more dummy content 1',
-//                'last_change' => '2015-10-12',
-//                'sets'        => array('seta', 'setb'),
-//            ),
-//            array(
-//                'identifier'  => '1W2',
-//                'title'       => 'Dummy content 2',
-//                'description' => 'Some more dummy content 2',
-//                'last_change' => '2015-10-12',
-//                'sets'        => array('seta'),
-//            ),
-//            array(
-//                'identifier'  => '1W3',
-//                'title'       => 'Dummy content 3',
-//                'description' => 'Some more dummy content 3',
-//                'last_change' => '2015-10-12',
-//                'sets'        => array('seta'),
-//            ),
-//            array(
-//                'identifier'  => '1W4',
-//                'title'       => 'Dummy content 4',
-//                'description' => 'Some more dummy content 4',
-//                'last_change' => '2015-10-12',
-//                'sets'        => array('setc'),
-//            ),
-//            array(
-//                'identifier'  => '1W5',
-//                'title'       => 'Dummy content 5',
-//                'description' => 'Some more dummy content 5',
-//                'last_change' => '2015-10-12',
-//                'sets'        => array('setd'),
-//            ),
-//        );
     }
 
     /**
@@ -184,8 +140,6 @@ class OAI extends ContainerAware implements DataProviderInterface
             'dc_title'          => $record['title'],
             'dc_description'    => $record['description'],
             'dc_source'         => $record['source'],
-//            'dc_nr'             => $record['nr'],
-//            'dc_filepath'       => $record['filepath'],
         );
     }
 
