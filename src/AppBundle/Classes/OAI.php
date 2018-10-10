@@ -17,6 +17,7 @@ class OAI implements DataProviderInterface
     public function getRepositoryName()
     {
         // TODO: Implement getRepositoryName() method.
+        return "KP Oai-Pmh Server";
     }
 
     /**
@@ -25,6 +26,7 @@ class OAI implements DataProviderInterface
     public function getAdminEmail()
     {
         // TODO: Implement getAdminEmail() method.
+        return 'marek.zdybel@sbg.com.pl';
     }
 
     /**
@@ -33,6 +35,7 @@ class OAI implements DataProviderInterface
     public function getEarliestDatestamp()
     {
         // TODO: Implement getEarliestDatestamp() method.
+        return '2018-10-09';
     }
 
     /**
@@ -42,6 +45,11 @@ class OAI implements DataProviderInterface
     public function getRecord($id)
     {
         // TODO: Implement getRecord() method.
+        return array(
+            'title'         => 'Dummy content',
+            'description'   => 'Some more dummy content',
+            'sets'          => array('seta','setb'),
+        );
     }
 
     /**
@@ -54,6 +62,43 @@ class OAI implements DataProviderInterface
     public function getRecords($set = null, \DateTime $from = null, \DateTime $until = null)
     {
         // TODO: Implement getRecords() method.
+        return array(
+            array(
+                'identifier'  => '1W1',
+                'title'       => 'Dummy content 1',
+                'description' => 'Some more dummy content',
+                'last_change' => '2015-10-12',
+                'sets'        => array('seta', 'setb'),
+            ),
+            array(
+                'identifier'  => '1W2',
+                'title'       => 'Dummy content 2',
+                'description' => 'Some more dummy content',
+                'last_change' => '2015-10-12',
+                'sets'        => array('seta'),
+            ),
+            array(
+                'identifier'  => '1W3',
+                'title'       => 'Dummy content 3',
+                'description' => 'Some more dummy content',
+                'last_change' => '2015-10-12',
+                'sets'        => array('seta'),
+            ),
+            array(
+                'identifier'  => '1W4',
+                'title'       => 'Dummy content 4',
+                'description' => 'Some more dummy content',
+                'last_change' => '2015-10-12',
+                'sets'        => array('setc'),
+            ),
+            array(
+                'identifier'  => '1W5',
+                'title'       => 'Dummy content 5',
+                'description' => 'Some more dummy content',
+                'last_change' => '2015-10-12',
+                'sets'        => array('setd'),
+            ),
+        );
     }
 
     /**
@@ -63,6 +108,16 @@ class OAI implements DataProviderInterface
     public function getSets()
     {
         // TODO: Implement getSets() method.
+        return array(
+            array(
+                'identifier' => 'seta',
+                'name'       => 'THE set number A',
+            ),
+            array(
+                'identifier' => 'setb',
+                'name'       => 'THE set identified by B',
+            )
+        );
     }
 
     /**
@@ -73,6 +128,7 @@ class OAI implements DataProviderInterface
     public function getSetsForRecord($record)
     {
         // TODO: Implement getSetsForRecord() method.
+        return $record['sets'];
     }
 
     /**
@@ -83,6 +139,11 @@ class OAI implements DataProviderInterface
     public function dublinizeRecord($record)
     {
         // TODO: Implement dublinizeRecord() method.
+        return array(
+            'dc_identifier'  => $record['identifier'],
+            'dc_title'       => $record['title'],
+            'dc_description' => $record['description'],
+        );
     }
 
     /**
@@ -92,6 +153,7 @@ class OAI implements DataProviderInterface
     public function checkSupportSets()
     {
         // TODO: Implement checkSupportSets() method.
+        return true;
     }
 
     /**
@@ -102,6 +164,7 @@ class OAI implements DataProviderInterface
     public static function getRecordId($record)
     {
         // TODO: Implement getRecordId() method.
+        return $record['identifier'];
     }
 
     /**
@@ -112,5 +175,6 @@ class OAI implements DataProviderInterface
     public static function getRecordUpdated($record)
     {
         // TODO: Implement getRecordUpdated() method.
+        return $record['last_change'];
     }
 }

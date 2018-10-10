@@ -35,6 +35,6 @@ services:
     #         $someArgument: 'some_value'
 
     naoned.oaipmh.data_provider:
-        class: src\AppBundle\Classes\OAI
+        class: AppBundle\Classes\OAI
         calls:
         - [ setContainer, ["@service_container"] ]
