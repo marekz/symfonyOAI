@@ -3,10 +3,16 @@
 namespace AppBundle\Classes;
 
 use Naoned\OaiPmhServerBundle\DataProvider\DataProviderInterface;
+use Symfony\Component\DependencyInjection\Container;
 use Symfony\Component\DependencyInjection\ContainerAware;
 
 class OAI extends ContainerAware implements DataProviderInterface
 {
+
+    public function __construct()
+    {
+    }
+
     /**
      * @return string Repository name
      */
@@ -31,7 +37,7 @@ class OAI extends ContainerAware implements DataProviderInterface
     public function getEarliestDatestamp()
     {
         // TODO: Implement getEarliestDatestamp() method.
-        return '2018-10-09';
+        return '1990-01-01';
     }
 
     /**
@@ -41,11 +47,23 @@ class OAI extends ContainerAware implements DataProviderInterface
     public function getRecord($id)
     {
         // TODO: Implement getRecord() method.
-        return array(
-            'title'         => 'Dummy content',
-            'description'   => 'Some more dummy content',
-            'sets'          => array('seta','setb'),
+        $container = $this->container;
+        $doctrine = $container->get('doctrine');
+        $em = $doctrine->getManager();
+        $record = $em->getRepository('AppBundle:Publications')->findOneBy(array('id'=>$id));
+        return $this->convertToArray($record);
+    }
+
+    private function convertToArray($record){
+        $recordArray = array(
+            'id' => $record->getId(),
+            'value' => $record->getValue(),
+            'title' => $record->getTitle(),
+            'createdAt' => $record->getCreatedAt(),
+            'nr' => $record->getNr(),
+            'filepath' => $record->getFilePAth()
         );
+        return $recordArray;
     }
 
     /**
@@ -58,6 +76,25 @@ class OAI extends ContainerAware implements DataProviderInterface
     public function getRecords($set = null, \DateTime $from = null, \DateTime $until = null)
     {
         // TODO: Implement getRecords() method.
+
+        $container = $this->container;
+        $doctrine = $container->get('doctrine');
+        $em = $doctrine->getManager();
+        $records = $em->getRepository('AppBundle:Publications')->findAll();
+        $listIdentifiers = array();
+        foreach ($records as $record) {
+            $identifier = array(
+                'identifier'  => $record->getId(),
+                'title'       => $record->getValue(),
+                'description' => $record->getTitle(),
+                'last_change' => $record->getCreatedAt(),
+                'sets'        => array('seta', 'setb'),);
+//            var_dump($record->getNr());
+//            var_dump($record->getFilePath());
+            $listIdentifiers[] = $identifier;
+        }
+//        die();
+        return $listIdentifiers;
         return array(
             array(
                 'identifier'  => '1W1',
