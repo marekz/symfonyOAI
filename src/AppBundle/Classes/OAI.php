@@ -85,7 +85,7 @@ class OAI extends ContainerAware implements DataProviderInterface
                 'description' => $record->getNr(),
                 'last_change' => $record->getCreatedAt(),
                 'source'      => $record->getFilepath(),
-                'sets'        => array($record->getValue()),);
+                'sets'        => array($this->specValue($record->getValue())),);
             $listIdentifiers[] = $identifier;
         }
         return $listIdentifiers;
