@@ -17,8 +17,7 @@ class OAI extends ContainerAware implements DataProviderInterface
      */
     public function getRepositoryName()
     {
-        // TODO: Implement getRepositoryName() method.
-        return "KP Oai-Pmh Server";
+        return $this->container->getParameter('repository_name');
     }
 
     /**
@@ -26,8 +25,7 @@ class OAI extends ContainerAware implements DataProviderInterface
      */
     public function getAdminEmail()
     {
-        // TODO: Implement getAdminEmail() method.
-        return 'marek.zdybel@sbg.com.pl';
+        return $this->container->getParameter('repository_admin');
     }
 
     /**
@@ -35,8 +33,7 @@ class OAI extends ContainerAware implements DataProviderInterface
      */
     public function getEarliestDatestamp()
     {
-        // TODO: Implement getEarliestDatestamp() method.
-        return '1990-01-01';
+        return $this->container->getParameter('earliest_datestamp');
     }
 
     /**
@@ -45,7 +42,6 @@ class OAI extends ContainerAware implements DataProviderInterface
      */
     public function getRecord($id)
     {
-        // TODO: Implement getRecord() method.
         $container = $this->container;
         $doctrine = $container->get('doctrine');
         $em = $doctrine->getManager();
@@ -77,8 +73,6 @@ class OAI extends ContainerAware implements DataProviderInterface
      */
     public function getRecords($set = null, \DateTime $from = null, \DateTime $until = null)
     {
-        // TODO: Implement getRecords() method.
-
         $container = $this->container;
         $doctrine = $container->get('doctrine');
         $em = $doctrine->getManager();
@@ -87,11 +81,11 @@ class OAI extends ContainerAware implements DataProviderInterface
         foreach ($records as $record) {
             $identifier = array(
                 'identifier'  => $record->getId(),
-                'title'       => $record->getValue(),
-                'description' => $record->getTitle(),
+                'title'       => $record->getTitle(),
+                'description' => $record->getNr(),
                 'last_change' => $record->getCreatedAt(),
                 'source'      => $record->getFilepath(),
-                'sets'        => array('seta', 'setb'),);
+                'sets'        => array($record->getValue()),);
             $listIdentifiers[] = $identifier;
         }
         return $listIdentifiers;
@@ -103,17 +97,35 @@ class OAI extends ContainerAware implements DataProviderInterface
      */
     public function getSets()
     {
-        // TODO: Implement getSets() method.
-        return array(
-            array(
-                'identifier' => 'seta',
-                'name'       => 'THE set number A',
-            ),
-            array(
-                'identifier' => 'setb',
-                'name'       => 'THE set identified by B',
-            )
-        );
+        $container = $this->container;
+        $doctrine = $container->get('doctrine');
+        $em = $doctrine->getManager();
+        $records = $em->getRepository('AppBundle:Publications')->getSetsRecords();
+
+        $sets_array = array();
+
+        foreach($records as $record) {
+            array_push(
+                $sets_array,
+                array(
+                    'identifier'=>$record['value'],
+                    'name'=>$record['value']
+                )
+            );
+        }
+
+        return $sets_array;
+//        $array = array(
+//            array(
+//                'identifier' => 'seta',
+//                'name'       => 'THE set number A',
+//            ),
+//            array(
+//                'identifier' => 'setb',
+//                'name'       => 'THE set identified by B',
+//            )
+//        );
+//        return $array;
     }
 
     /**

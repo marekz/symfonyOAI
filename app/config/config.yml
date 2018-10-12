@@ -82,4 +82,4 @@ swiftmailer:
 
 naoned_oai_pmh_server:
     data_provider_service_name: naoned.oaipmh.data_provider
-    count_per_load: 50
+    count_per_load: "%count_per_load%"

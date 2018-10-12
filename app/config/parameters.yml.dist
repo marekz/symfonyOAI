@@ -17,3 +17,8 @@ parameters:
 
     # A secret key that's used to generate certain security-related tokens
     secret:            ThisTokenIsNotSoSecretChangeIt
+
+    repository_name: Repository name
+    repository_admin: adminEmail
+    earliest_datestamp: 1975-01-01
+    count_per_load: 50

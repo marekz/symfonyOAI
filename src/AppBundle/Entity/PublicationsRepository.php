@@ -12,4 +12,9 @@ use Doctrine\ORM\EntityRepository;
  */
 class PublicationsRepository extends EntityRepository
 {
+    public function getSetsRecords(){
+        $qb = $this->createQueryBuilder('p');
+        $qb->select('DISTINCT p.value');
+        return $qb->getQuery()->getResult();
+    }
 }
