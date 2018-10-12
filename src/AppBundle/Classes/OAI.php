@@ -108,24 +108,18 @@ class OAI extends ContainerAware implements DataProviderInterface
             array_push(
                 $sets_array,
                 array(
-                    'identifier'=>$record['value'],
+                    'identifier'=>$this->specValue($record['value']),
                     'name'=>$record['value']
                 )
             );
         }
 
         return $sets_array;
-//        $array = array(
-//            array(
-//                'identifier' => 'seta',
-//                'name'       => 'THE set number A',
-//            ),
-//            array(
-//                'identifier' => 'setb',
-//                'name'       => 'THE set identified by B',
-//            )
-//        );
-//        return $array;
+    }
+
+    private function specValue($value){
+        if($value == "Zeszyty Historyczne") return "ZH";
+        if($value == "Miesięcznik Kultura") return "MK";
     }
 
     /**
